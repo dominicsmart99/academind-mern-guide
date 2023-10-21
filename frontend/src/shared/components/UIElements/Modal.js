@@ -29,10 +29,12 @@ function ModalOverlay(props) {
 }
 
 function Modal(props) {
+  //const nodeRef = useRef();
   return (
     <Fragment>
       {props.show && <BackDrop onClick={props.onCancel} />}
       <CSSTransition
+        //nodeRef={nodeRef}
         in={props.show}
         mountOnEnter
         unmountOnExit
