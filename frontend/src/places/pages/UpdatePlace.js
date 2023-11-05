@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
 import {
@@ -8,6 +9,7 @@ import {
 import { useForm } from "../../shared/hooks/FormHook";
 
 import "./PlaceForm.css";
+import Card from "../../shared/components/UIElements/Card";
 
 const DUMMY_PLACES = [
   {
@@ -39,71 +41,113 @@ const DUMMY_PLACES = [
 ];
 
 function UpdatePlace() {
+  const [isLoading, setIsLoading] = useState(true);
   const placeId = useParams().placeId;
-  const identifiedPlace = DUMMY_PLACES.find((place) => place.id === placeId);
-  const [formState, inputHandler] = useForm(
+  const creatorId = useParams().userId;
+
+  const [formState, inputHandler, setFormData] = useForm(
     {
       title: {
-        value: identifiedPlace.title,
+        value: "",
         isValid: true,
       },
       description: {
-        value: identifiedPlace.description,
+        value: "",
         isValid: true,
       },
       address: {
-        value: identifiedPlace.address,
+        value: "",
         isValid: true,
       },
     },
     true
   );
 
+  const identifiedPlace = DUMMY_PLACES.find((place) => place.id === placeId);
+
+  useEffect(() => {
+    if (identifiedPlace) {
+      setFormData(
+        {
+          title: {
+            value: identifiedPlace.title,
+            isValid: true,
+          },
+          description: {
+            value: identifiedPlace.description,
+            isValid: true,
+          },
+          address: {
+            value: identifiedPlace.address,
+            isValid: true,
+          },
+        },
+        true
+      );
+    }
+    setIsLoading(false);
+  }, [setFormData, identifiedPlace]);
+
   if (!identifiedPlace) {
     return (
       <div className="center">
-        <h2>Could not find place!</h2>
+        <Card>
+          <h2>Could not find place!</h2>
+        </Card>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="center">
+        <h2>Loading...</h2>
       </div>
     );
   }
 
   return (
-    <form className="place-form" onSubmit={placeUpdateHandler}>
-      <Input
-        id="title"
-        type="text"
-        label="Title"
-        element="input"
-        validators={[VALIDATOR_REQUIRE()]}
-        errorText="Please enter a valid title."
-        onInput={inputHandler}
-        value={formState.inputs.title.value}
-        valid={true}
-      />
-      <Input
-        id="description"
-        label="Description"
-        element="textarea"
-        validators={[VALIDATOR_MINLENGTH(5)]}
-        errorText="Please enter a valid description (at least 5 characters)."
-        onInput={inputHandler}
-        value={formState.inputs.description.value}
-        valid={true}
-      />
-      <Input
-        id="address"
-        label="Address"
-        element="input"
-        validators={[VALIDATOR_REQUIRE()]}
-        errorText="Please enter a valid address."
-        onInput={inputHandler}
-        value={formState.inputs.address.value}
-        valid={true}
-      />
-      <Button type="submit" disabled={!formState.isValid}>
-        UPDATE PLACE
-      </Button>
-    </form>
+    formState.inputs.title.value && (
+      <form className="place-form" onSubmit={placeUpdateHandler}>
+        <Input
+          id="title"
+          type="text"
+          label="Title"
+          element="input"
+          validators={[VALIDATOR_REQUIRE()]}
+          errorText="Please enter a valid title."
+          onInput={inputHandler}
+          value={formState.inputs.title.value}
+          valid={true}
+        />
+        <Input
+          id="description"
+          label="Description"
+          element="textarea"
+          validators={[VALIDATOR_MINLENGTH(5)]}
+          errorText="Please enter a valid description (at least 5 characters)."
+          onInput={inputHandler}
+          value={formState.inputs.description.value}
+          valid={true}
+        />
+        <Input
+          id="address"
+          label="Address"
+          element="input"
+          validators={[VALIDATOR_REQUIRE()]}
+          errorText="Please enter a valid address."
+          onInput={inputHandler}
+          value={formState.inputs.address.value}
+          valid={true}
+        />
+        <Button inverse to={`/${creatorId}/places`}>
+          CANCEL
+        </Button>
+        <Button type="submit" disabled={!formState.isValid}>
+          UPDATE PLACE
+        </Button>
+      </form>
+    )
   );
 
   function placeUpdateHandler(event) {

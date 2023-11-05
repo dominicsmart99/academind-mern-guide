@@ -21,8 +21,8 @@ function App() {
         <Routes>
           <Route path="/" Component={Users} />
           <Route path="/places/new" Component={NewPlace} />
-          <Route path="/places/:placeId" Component={UpdatePlace} />
           <Route path="/:userId/places" Component={UserPlaces} />
+          <Route path="/:userId/places/:placeId" Component={UpdatePlace} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>

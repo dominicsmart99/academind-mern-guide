@@ -8,8 +8,10 @@ function PlaceList(props) {
   if (props.items.length === 0) {
     return (
       <div className="place-list center">
-        <Card>No places found. Maybe create one?</Card>
-        <Button>Share Place</Button>
+        <Card>
+          <h2>No places found. Maybe create one?</h2>
+          <Button to="/places/new">Share Place</Button>
+        </Card>
       </div>
     );
   }
