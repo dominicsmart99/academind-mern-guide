@@ -49,18 +49,18 @@ function UpdatePlace() {
     {
       title: {
         value: "",
-        isValid: true,
+        isValid: false,
       },
       description: {
         value: "",
-        isValid: true,
+        isValid: false,
       },
       address: {
         value: "",
-        isValid: true,
+        isValid: false,
       },
     },
-    true
+    false
   );
 
   const identifiedPlace = DUMMY_PLACES.find((place) => place.id === placeId);
@@ -117,8 +117,8 @@ function UpdatePlace() {
           validators={[VALIDATOR_REQUIRE()]}
           errorText="Please enter a valid title."
           onInput={inputHandler}
-          value={formState.inputs.title.value}
-          valid={true}
+          initialValue={formState.inputs.title.value}
+          initialValid={true}
         />
         <Input
           id="description"
@@ -127,8 +127,8 @@ function UpdatePlace() {
           validators={[VALIDATOR_MINLENGTH(5)]}
           errorText="Please enter a valid description (at least 5 characters)."
           onInput={inputHandler}
-          value={formState.inputs.description.value}
-          valid={true}
+          initialValue={formState.inputs.description.value}
+          initialValid={true}
         />
         <Input
           id="address"
@@ -137,8 +137,8 @@ function UpdatePlace() {
           validators={[VALIDATOR_REQUIRE()]}
           errorText="Please enter a valid address."
           onInput={inputHandler}
-          value={formState.inputs.address.value}
-          valid={true}
+          initialValue={formState.inputs.address.value}
+          initialValid={true}
         />
         <Button inverse to={`/${creatorId}/places`}>
           CANCEL

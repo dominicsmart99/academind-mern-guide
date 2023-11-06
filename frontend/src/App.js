@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 
 import Users from "./user/pages/Users";
+import Authenticate from "./user/pages/Authenticate";
 import NewPlace from "./places/pages/NewPlace";
 import MainNavigation from "./shared/components/Navigation/MainNavigation";
 import UserPlaces from "./places/pages/UserPlaces";
@@ -20,6 +21,7 @@ function App() {
       <main>
         <Routes>
           <Route path="/" Component={Users} />
+          <Route path="/auth" Component={Authenticate} />
           <Route path="/places/new" Component={NewPlace} />
           <Route path="/:userId/places" Component={UserPlaces} />
           <Route path="/:userId/places/:placeId" Component={UpdatePlace} />
