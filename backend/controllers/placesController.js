@@ -3,6 +3,7 @@ const uuid = require("uuid").v4;
 
 const HttpError = require("../models/httpError");
 const getCoodsForAddress = require("../util/location");
+const Place = require("../models/place");
 
 let DUMMY_PLACES = [
   {
@@ -59,7 +60,7 @@ async function createPlace(req, res, next) {
     );
   }
 
-  const { title, description, imageUrl, address, creator } = req.body;
+  const { title, description, image, address, creator } = req.body;
   let coordinates;
   try {
     coordinates = await getCoodsForAddress(address);
@@ -67,17 +68,20 @@ async function createPlace(req, res, next) {
     return next(error);
   }
 
-  const createdPlace = {
-    id: uuid(),
+  const createdPlace = new Place({
     title,
     description,
-    imageUrl,
+    image,
     location: coordinates,
     address,
     creator,
-  };
-  DUMMY_PLACES.push(createdPlace);
-
+  });
+  try {
+    await createdPlace.save();
+  } catch (err) {
+    const error = new HttpError("Creating place filed, please try again.", 500);
+    return next(error);
+  }
   res.status(201).json({ place: createdPlace });
 }
 
