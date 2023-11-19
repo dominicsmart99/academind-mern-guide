@@ -1,33 +1,29 @@
 const { validationResult } = require("express-validator");
-const uuid = require("uuid").v4;
 
 const HttpError = require("../models/httpError");
+const User = require("../models/user");
 
-const DUMMY_USERS = [
-  {
-    id: "u1",
-    name: "Papazuki",
-    email: "papazuki@test.com",
-    image:
-      "https://qph.cf2.quoracdn.net/main-qimg-8e770f980f1b1f0a1a33fa01ec29ec56-lq",
-    password: "testu1",
-    places: 1,
-  },
-  {
-    id: "u2",
-    name: "Wogard",
-    email: "wogard@test.com",
-    image: "https://static.zerochan.net/Bogard.full.3906865.jpg",
-    password: "testu2",
-    places: 1,
-  },
-];
-
-function getAllUsers(req, res, next) {
-  res.json({ users: DUMMY_USERS });
+async function getAllUsers(req, res, next) {
+  let users;
+  try {
+    users = await User.find({}, "-password");
+  } catch (err) {
+    // const error = new HttpError(
+    //   "Something went wrong, could not find users.",
+    //   500
+    // );
+    return next(error);
+  }
+  if (!users || users.length === 0) {
+    const error = new HttpError("No users found.", 404);
+    return next(error);
+  }
+  res.json({
+    users: users.map((users) => users.toObject({ getters: true })),
+  });
 }
 
-function signup(req, res, next) {
+async function signup(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
@@ -36,32 +32,52 @@ function signup(req, res, next) {
   }
 
   const { name, email, password } = req.body;
-  const existingUser = DUMMY_USERS.find((u) => u.email === email);
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (err) {
+    return next(error);
+  }
   if (existingUser) {
     return next(new HttpError("Account already exists with this email.", 422));
   }
-  const newUser = {
-    id: uuid(),
+  const newUser = new User({
     name,
     email,
     password,
-  };
-  DUMMY_USERS.push(newUser);
-  res.status(201).json({ user: newUser });
+    image:
+      "https://qph.cf2.quoracdn.net/main-qimg-8e770f980f1b1f0a1a33fa01ec29ec56-lq",
+    places: [],
+  });
+  try {
+    await newUser.save();
+  } catch (err) {
+    const error = new HttpError("Sign up failed, please try again.", 500);
+    return next(error);
+  }
+  res.status(201).json({ user: newUser.toObject({ getters: true }) });
 }
 
-function login(req, res, next) {
+async function login(req, res, next) {
   const { email, password } = req.body;
-  const user = DUMMY_USERS.find(
-    (u) => u.email === email && u.password === password
-  );
+  let user;
+  try {
+    user = await User.findOne({ email: email, password: password });
+  } catch (err) {
+    // const error = new HttpError(
+    //   "Login failed, please try again.",
+    //   500
+    // );
+    return next(err);
+  }
+
   if (!user) {
     return next(
       new HttpError("No account found matching email and password.", 404)
     );
   }
 
-  res.status(200).json({ message: "Login successful." });
+  res.status(200).json({ message: `Login successful as ${user.name}.` });
 }
 
 exports.getAllUsers = getAllUsers;
