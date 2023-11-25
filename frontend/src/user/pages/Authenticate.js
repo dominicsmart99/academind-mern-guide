@@ -18,6 +18,10 @@ function Authenticate() {
 
   const [formState, inputHandler, setFormData] = useForm(
     {
+      name: {
+        value: "",
+        isValid: false,
+      },
       email: {
         value: "",
         isValid: false,
@@ -45,10 +49,30 @@ function Authenticate() {
     setIsLoginMode((prevMode) => !prevMode);
   }
 
-  function authenticateHandler(event) {
+  async function authenticateHandler(event) {
     event.preventDefault();
-    auth.login();
-    console.log(formState.inputs);
+
+    if (isLoginMode) {
+    } else {
+      try {
+        const response = await fetch("http://localhost:5000/api/users/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formState.inputs.name.value,
+            email: formState.inputs.email.value,
+            password: formState.inputs.password.value,
+          }),
+        });
+
+        const responseData = response.json();
+        console.log(responseData);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    await auth.login();
   }
 
   return (
